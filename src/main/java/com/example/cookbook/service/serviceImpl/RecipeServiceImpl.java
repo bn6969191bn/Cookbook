@@ -27,5 +27,10 @@ public class RecipeServiceImpl implements RecipeService {
     public Recipe getRecipeById(String id) {
         return recipeRepository.findById(id).orElse(null);
     }
+
+    @Override
+    public Recipe addRecipe(Recipe recipe) {
+        return recipeRepository.save(recipe);
+    }
 }
 

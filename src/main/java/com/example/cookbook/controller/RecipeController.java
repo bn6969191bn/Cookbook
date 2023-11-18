@@ -3,10 +3,9 @@ package com.example.cookbook.controller;
 import com.example.cookbook.model.Recipe;
 import com.example.cookbook.service.RecipeService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -29,5 +28,11 @@ public class RecipeController {
     @GetMapping("/{id}")
     public Recipe getRecipeById(@PathVariable String id) {
         return recipeService.getRecipeById(id);
+    }
+
+    @PostMapping
+    public ResponseEntity<Recipe> addRecipe(@RequestBody Recipe recipe) {
+        Recipe addedRecipe = recipeService.addRecipe(recipe);
+        return new ResponseEntity<>(addedRecipe, HttpStatus.CREATED);
     }
 }
