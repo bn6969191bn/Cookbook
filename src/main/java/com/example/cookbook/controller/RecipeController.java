@@ -35,4 +35,10 @@ public class RecipeController {
         Recipe addedRecipe = recipeService.addRecipe(recipe);
         return new ResponseEntity<>(addedRecipe, HttpStatus.CREATED);
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<String> deleteRecipe(@PathVariable String id) {
+        recipeService.deleteRecipeById(id);
+        return ResponseEntity.ok("Recipe deleted successfully");
+    }
 }
