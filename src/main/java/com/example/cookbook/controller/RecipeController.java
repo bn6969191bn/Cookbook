@@ -1,5 +1,6 @@
 package com.example.cookbook.controller;
 
+import com.example.cookbook.exceptions.RecipeNotFoundException;
 import com.example.cookbook.model.Recipe;
 import com.example.cookbook.service.RecipeService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,5 +41,15 @@ public class RecipeController {
     public ResponseEntity<String> deleteRecipe(@PathVariable String id) {
         recipeService.deleteRecipeById(id);
         return ResponseEntity.ok("Recipe deleted successfully");
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<Recipe> updateRecipe(@PathVariable String id, @RequestBody Recipe updatedRecipe) {
+        try {
+            Recipe updated = recipeService.updateRecipe(id, updatedRecipe);
+            return ResponseEntity.ok(updated);
+        } catch (RecipeNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
     }
 }

@@ -1,5 +1,6 @@
 package com.example.cookbook.service.serviceImpl;
 
+import com.example.cookbook.exceptions.RecipeNotFoundException;
 import com.example.cookbook.model.Recipe;
 import com.example.cookbook.repository.RecipeRepository;
 import com.example.cookbook.service.RecipeService;
@@ -7,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class RecipeServiceImpl implements RecipeService {
@@ -37,5 +39,33 @@ public class RecipeServiceImpl implements RecipeService {
     public void deleteRecipeById(String id) {
         recipeRepository.deleteById(id);
     }
+
+    @Override
+    public Recipe updateRecipe(String id, Recipe updatedRecipe) {
+        Optional<Recipe> existingRecipeOptional = recipeRepository.findById(id);
+
+        if (existingRecipeOptional.isPresent()) {
+            Recipe existingRecipe = existingRecipeOptional.get();
+
+            if (updatedRecipe.getName() != null) {
+                existingRecipe.setName(updatedRecipe.getName());
+            }
+            if (updatedRecipe.getDescription() != null) {
+                existingRecipe.setDescription(updatedRecipe.getDescription());
+            }
+            if (updatedRecipe.getIngredients() != null) {
+                existingRecipe.setIngredients(updatedRecipe.getIngredients());
+            }
+            if (updatedRecipe.getInstructions() != null) {
+                existingRecipe.setInstructions(updatedRecipe.getInstructions());
+            }
+
+            return recipeRepository.save(existingRecipe);
+        }
+
+        throw new RecipeNotFoundException("Recipe with ID " + id + " not found");
+    }
+
+
 }
 
