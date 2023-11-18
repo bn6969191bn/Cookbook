@@ -9,4 +9,6 @@ public interface RecipeService {
     List<Recipe> getAllRecipes();
 
     Recipe getRecipeById(String id);
+
+    Recipe addRecipe(Recipe recipe);
 }
