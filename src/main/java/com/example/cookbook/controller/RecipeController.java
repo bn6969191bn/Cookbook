@@ -3,6 +3,7 @@ package com.example.cookbook.controller;
 import com.example.cookbook.exceptions.RecipeNotFoundException;
 import com.example.cookbook.model.Recipe;
 import com.example.cookbook.service.RecipeService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -26,12 +27,6 @@ public class RecipeController {
     public ResponseEntity<?> getAllRecipes() {
         try {
             List<Recipe> recipes = recipeService.getAllRecipes();
-
-            if (recipes.isEmpty()) {
-                return ResponseEntity
-                        .status(HttpStatus.NO_CONTENT)
-                        .body("No recipes found");
-            }
 
             return ResponseEntity
                     .status(HttpStatus.OK)
@@ -62,7 +57,7 @@ public class RecipeController {
     }
 
     @PostMapping
-    public ResponseEntity<?> addRecipe(@RequestBody Recipe recipe) {
+    public ResponseEntity<?> addRecipe(@RequestBody @Valid Recipe recipe) {
         try {
             Recipe addedRecipe = recipeService.addRecipe(recipe);
             return ResponseEntity
@@ -96,7 +91,7 @@ public class RecipeController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateRecipe(@PathVariable String id, @RequestBody Recipe updatedRecipe) {
+    public ResponseEntity<?> updateRecipe(@PathVariable String id, @RequestBody @Valid Recipe updatedRecipe) {
         try {
             Recipe updated = recipeService.updateRecipe(id, updatedRecipe);
             return ResponseEntity
