@@ -6,11 +6,11 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 
 @SpringBootApplication
-@EnableAutoConfiguration(exclude={DataSourceAutoConfiguration.class})
+@EnableAutoConfiguration(exclude = {DataSourceAutoConfiguration.class})
 public class CookbookApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(CookbookApplication.class, args);
-	}
+    public static void main(String[] args) {
+        SpringApplication.run(CookbookApplication.class, args);
+    }
 
 }
