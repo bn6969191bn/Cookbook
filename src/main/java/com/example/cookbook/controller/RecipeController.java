@@ -12,6 +12,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/recipes")
+@CrossOrigin
 public class RecipeController {
 
     private final RecipeService recipeService;
@@ -22,34 +23,93 @@ public class RecipeController {
     }
 
     @GetMapping
-    public List<Recipe> getAllRecipes() {
-        return recipeService.getAllRecipes();
+    public ResponseEntity<?> getAllRecipes() {
+        try {
+            List<Recipe> recipes = recipeService.getAllRecipes();
+
+            if (recipes.isEmpty()) {
+                return ResponseEntity
+                        .status(HttpStatus.NO_CONTENT)
+                        .body("No recipes found");
+            }
+
+            return ResponseEntity
+                    .status(HttpStatus.OK)
+                    .body(recipes);
+        } catch (Exception e) {
+            return ResponseEntity
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error retrieving recipes");
+        }
     }
 
     @GetMapping("/{id}")
-    public Recipe getRecipeById(@PathVariable String id) {
-        return recipeService.getRecipeById(id);
+    public ResponseEntity<?> getRecipeById(@PathVariable String id) {
+        try {
+            Recipe recipe = recipeService.getRecipeById(id);
+            return ResponseEntity
+                    .status(HttpStatus.OK)
+                    .body(recipe);
+        } catch (RecipeNotFoundException e) {
+            return ResponseEntity
+                    .status(HttpStatus.NOT_FOUND)
+                    .body("Recipe not found");
+        } catch (Exception e) {
+            return ResponseEntity
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error retrieving recipe");
+        }
     }
 
     @PostMapping
-    public ResponseEntity<Recipe> addRecipe(@RequestBody Recipe recipe) {
-        Recipe addedRecipe = recipeService.addRecipe(recipe);
-        return new ResponseEntity<>(addedRecipe, HttpStatus.CREATED);
+    public ResponseEntity<?> addRecipe(@RequestBody Recipe recipe) {
+        try {
+            Recipe addedRecipe = recipeService.addRecipe(recipe);
+            return ResponseEntity
+                    .status(HttpStatus.CREATED)
+                    .body(addedRecipe);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error adding a new recipe");
+        }
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteRecipe(@PathVariable String id) {
-        recipeService.deleteRecipeById(id);
-        return ResponseEntity.ok("Recipe deleted successfully");
+        try {
+            if (recipeService.getRecipeById(id) == null) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Recipe not found");
+            }
+
+            recipeService.deleteRecipeById(id);
+            return ResponseEntity.ok("Recipe deleted successfully");
+        } catch (RecipeNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Recipe not found");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error deleting recipe");
+        }
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Recipe> updateRecipe(@PathVariable String id, @RequestBody Recipe updatedRecipe) {
+    public ResponseEntity<?> updateRecipe(@PathVariable String id, @RequestBody Recipe updatedRecipe) {
         try {
             Recipe updated = recipeService.updateRecipe(id, updatedRecipe);
-            return ResponseEntity.ok(updated);
+            return ResponseEntity
+                    .status(HttpStatus.OK)
+                    .body(updated);
         } catch (RecipeNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+            return ResponseEntity
+                    .status(HttpStatus.NOT_FOUND)
+                    .body("Recipe not found");
+        } catch (Exception e) {
+            return ResponseEntity
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error updating recipe");
         }
     }
 }
