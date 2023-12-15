@@ -15,4 +15,6 @@ public interface RecipeService {
     void deleteRecipeById(String id);
 
     Recipe updateRecipe(String id, Recipe updatedRecipe);
+
+    List<Recipe> searchRecipesByName(String name);
 }

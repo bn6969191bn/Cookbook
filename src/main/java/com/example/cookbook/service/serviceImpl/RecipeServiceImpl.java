@@ -85,4 +85,9 @@ public class RecipeServiceImpl implements RecipeService {
         return recipeRepository.findById(id)
                 .orElseThrow(() -> new RecipeNotFoundException("Recipe with ID " + id + " not found"));
     }
+
+    @Override
+    public List<Recipe> searchRecipesByName(String name) {
+        return recipeRepository.findByNameContainingIgnoreCase(name);
+    }
 }
