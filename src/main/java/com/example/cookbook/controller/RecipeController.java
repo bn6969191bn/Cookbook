@@ -107,4 +107,10 @@ public class RecipeController {
                     .body("Error updating recipe");
         }
     }
+
+    @GetMapping("/search")
+    public ResponseEntity<List<Recipe>> searchRecipes(@RequestParam String name) {
+        List<Recipe> recipes = recipeService.searchRecipesByName(name);
+        return ResponseEntity.ok(recipes);
+    }
 }
