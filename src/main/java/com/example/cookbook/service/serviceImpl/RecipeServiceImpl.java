@@ -88,6 +88,17 @@ public class RecipeServiceImpl implements RecipeService {
 
     @Override
     public List<Recipe> searchRecipesByName(String name) {
-        return recipeRepository.findByNameContainingIgnoreCase(name);
+        try {
+            List<Recipe> recipes = recipeRepository.findByNameContainingIgnoreCase(name);
+            if (recipes.isEmpty()) {
+                throw new RecipeNotFoundException("No recipes found with the name: " + name);
+            }
+            return recipes;
+        } catch (RecipeNotFoundException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new RuntimeException("Error searching for recipes with name: " + name, e);
+        }
     }
+
 }

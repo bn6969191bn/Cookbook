@@ -109,8 +109,16 @@ public class RecipeController {
     }
 
     @GetMapping("/search")
-    public ResponseEntity<List<Recipe>> searchRecipes(@RequestParam String name) {
-        List<Recipe> recipes = recipeService.searchRecipesByName(name);
-        return ResponseEntity.ok(recipes);
+    public ResponseEntity<?> searchRecipes(@RequestParam String name) {
+        try {
+            List<Recipe> recipes = recipeService.searchRecipesByName(name);
+            if (recipes.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No recipes found with the provided name.");
+            }
+            return ResponseEntity.status(HttpStatus.OK).body(recipes);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error searching for recipes");
+        }
     }
+
 }
