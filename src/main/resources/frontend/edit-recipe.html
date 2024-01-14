@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edytuj Przepis</title>
+
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+        }
+
+        .edit-recipe-form {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .btn-dark {
+            color: #fff;
+            background-color: #343a40;
+            border-color: #343a40;
+            margin-right: 10px;
+        }
+
+        .btn-dark:hover {
+            background-color: #23272b;
+            border-color: #1d2124;
+        }
+
+        .button-container {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+    </style>
+</head>
+<body>
+<header class="bg-warning">
+    <div class="container">
+        <h1 class="text-center text-black">Edytuj Przepis</h1>
+    </div>
+</header>
+
+<div class="container mt-5 edit-recipe-form" id="editRecipeForm">
+    <form id="recipeForm">
+        <div class="form-group">
+            <label for="recipeName">Nazwa Przepisu:</label>
+            <input type="text" class="form-control" id="recipeName" placeholder="Wprowadź nazwę przepisu" required>
+        </div>
+        <div class="form-group">
+            <label for="recipeDescription">Opis Przepisu:</label>
+            <textarea class="form-control" id="recipeDescription" rows="3" placeholder="Wprowadź opis przepisu"
+                      required></textarea>
+        </div>
+        <div class="form-group">
+            <label for="recipeIngredients">Składniki:</label>
+            <textarea class="form-control" id="recipeIngredients" rows="3" placeholder="Wprowadź składniki"
+                      required></textarea>
+        </div>
+        <div class="form-group">
+            <label for="recipeInstructions">Instrukcje:</label>
+            <textarea class="form-control" id="recipeInstructions" rows="3" placeholder="Wprowadź instrukcje"
+                      required></textarea>
+        </div>
+        <div class="button-container">
+            <button type="button" class="btn btn-dark" id="saveChanges">Zapisz zmiany</button>
+            <a href="recipes.html" class="btn btn-dark">Anuluj</a>
+        </div>
+    </form>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+<script>
+        function loadRecipeData(recipeId) {
+            fetch(`http://localhost:8080/api/recipes/${recipeId}`)
+                .then(response => response.json())
+                .then(recipe => {
+                    document.getElementById('recipeName').value = recipe.name;
+                    document.getElementById('recipeDescription').value = recipe.description;
+                    document.getElementById('recipeIngredients').value = recipe.ingredients;
+                    document.getElementById('recipeInstructions').value = recipe.instructions;
+                })
+                .catch(error => {
+                    console.error('Błąd pobierania danych przepisu:', error);
+                    document.getElementById('editRecipeForm').innerHTML = '<div class="alert alert-danger" role="alert">Błąd pobierania danych przepisu</div>';
+                });
+        }
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const recipeId = urlParams.get('recipeId');
+
+        if (recipeId) {
+            loadRecipeData(recipeId);
+        } else {
+            document.getElementById('editRecipeForm').innerHTML = '<div class="alert alert-warning" role="alert">Brak danych przepisu do edycji</div>';
+        }
+
+        document.getElementById('saveChanges').addEventListener('click', () => {
+            const updatedRecipe = {
+                name: document.getElementById('recipeName').value,
+                description: document.getElementById('recipeDescription').value,
+                ingredients: document.getElementById('recipeIngredients').value,
+                instructions: document.getElementById('recipeInstructions').value
+            };
+
+            fetch(`http://localhost:8080/api/recipes/${recipeId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(updatedRecipe)
+            })
+            .then(response => {
+                if (response.ok) {
+                    window.location.href = 'recipes.html';
+                } else {
+                    throw new Error(`Error updating recipe: ${response.status} - ${response.statusText}`);
+                }
+            })
+            .catch(error => {
+                console.error(`Error updating recipe: ${error.message}`);
+            });
+        });
+
+</script>
+</body>
+</html>

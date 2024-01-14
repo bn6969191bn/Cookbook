@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Przepisy</title>
+
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .card {
+            height: 300px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            text-align: center;
+        }
+
+        .card-body {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .card-title {
+            margin-bottom: 10px;
+        }
+
+        .card-text {
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .btn-dark,
+        .btn-danger {
+            margin: 5px;
+        }
+
+
+    </style>
+</head>
+<body>
+<header class="bg-warning">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-md-4 text-center text-md-left">
+                <h1>Cookbook</h1>
+            </div>
+            <div class="col-md-4 text-center">
+                <div class="search-container">
+                    <input type="text" id="searchInput" placeholder="Wyszukaj przepis..." class="form-control d-inline-block" style="width: auto;">
+                    <button onclick="searchRecipes()" class="btn btn-dark">Wyszukaj</button>
+                </div>
+            </div>
+            <div class="col-md-4 text-center text-md-right">
+                <button id="add-recipe" class="btn btn-dark">Dodaj Przepis</button>
+            </div>
+        </div>
+    </div>
+</header>
+
+
+
+<div class="container mt-5">
+    <div class="row" id="recipeList">
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+<script>
+    function createRecipeList(recipes) {
+        const recipeList = document.getElementById('recipeList');
+        recipeList.innerHTML = '';
+
+        recipes.forEach(recipe => {
+            const colDiv = document.createElement('div');
+            colDiv.className = 'col-md-4';
+
+            const cardDiv = document.createElement('div');
+            cardDiv.className = 'card mt-3';
+
+            const cardBodyDiv = document.createElement('div');
+            cardBodyDiv.className = 'card-body';
+
+            const titleH5 = document.createElement('h5');
+            titleH5.className = 'card-title';
+            titleH5.textContent = recipe.name;
+
+            const descriptionP = document.createElement('p');
+            descriptionP.className = 'card-text';
+            descriptionP.textContent = truncateDescription(recipe.description, 15);
+
+            const viewButton = document.createElement('button');
+            viewButton.className = 'btn btn-dark';
+            viewButton.textContent = 'Zobacz Przepis';
+            viewButton.addEventListener('click', () => redirectToDetailsPage(recipe.id));
+
+            const deleteButton = document.createElement('button');
+            deleteButton.className = 'btn btn-danger';
+            deleteButton.textContent = 'Usuń Przepis';
+            deleteButton.addEventListener('click', () => deleteRecipe(recipe.id));
+
+            cardBodyDiv.appendChild(titleH5);
+            cardBodyDiv.appendChild(descriptionP);
+            cardBodyDiv.appendChild(viewButton);
+            cardBodyDiv.appendChild(deleteButton);
+
+            cardDiv.appendChild(cardBodyDiv);
+
+            colDiv.appendChild(cardDiv);
+            recipeList.appendChild(colDiv);
+        });
+    }
+
+    function truncateDescription(description, wordLimit) {
+        const words = description.split(' ');
+        if (words.length > wordLimit) {
+            return words.slice(0, wordLimit).join(' ') + '...';
+        }
+        return description;
+    }
+
+    function redirectToDetailsPage(recipeId) {
+        window.location.href = `details-recipe.html?recipeId=${recipeId}`;
+    }
+
+    function searchRecipes() {
+    const searchText = document.getElementById('searchInput').value;
+    fetch(`http://localhost:8080/api/recipes/search?name=${searchText}`)
+        .then(response => response.json())
+        .then(data => {
+            createRecipeList(data);
+        })
+        .catch(error => {
+            console.error('Error fetching recipes:', error);
+        });
+}
+
+    function deleteRecipe(recipeId) {
+    fetch(`http://localhost:8080/api/recipes/${recipeId}`, {
+        method: 'DELETE',
+    })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+
+            const contentType = response.headers.get('content-type');
+
+            if (contentType && contentType.indexOf('application/json') !== -1) {
+                return response.json();
+            } else {
+                return [];
+            }
+        })
+        .then(data => {
+            fetch('http://localhost:8080/api/recipes')
+                .then(response => {
+                return response.json();
+                })
+                .then(updatedData => {
+                    createRecipeList(updatedData);
+                })
+                .catch(error => {
+                    console.error('Error fetching recipes:', error);
+                });
+        })
+        .catch(error => {
+            console.error('Error deleting recipe:', error);
+        });
+}
+
+
+    fetch('http://localhost:8080/api/recipes')
+        .then(response => response.json())
+        .then(data => {
+            createRecipeList(data);
+        })
+        .catch(error => {
+            console.error('Error fetching recipes:', error);
+        });
+
+    document.getElementById('add-recipe').addEventListener('click', () => {
+        window.location.href = 'add-recipe.html';
+    });
+
+
+</script>
+</body>
+</html>

@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dodaj Nowy Przepis</title>
+
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+        }
+
+        header {
+            background-color: #ffc107;
+            color: black;
+            text-align: center;
+            padding: 10px;
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .recipe-details {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+
+        .centered-button {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .centered-button .btn {
+            margin: 0 5px;
+            color: white;
+        }
+
+        .centered-button #addRecipe {
+            background-color: black;
+            border-color: black;
+        }
+
+        .centered-button #addRecipe:hover {
+            background-color: #333;
+            border-color: #333;
+        }
+
+        .centered-button #goBack {
+            background-color: black;
+            border-color: black;
+        }
+
+        .centered-button #goBack:hover {
+            background-color: #333;
+            border-color: #333;
+        }
+
+    </style>
+</head>
+<body>
+<header>
+    <h1 class="text-center text-black">Dodaj Nowy Przepis</h1>
+</header>
+<div class="container mt-5 recipe-details" id="recipeDetails">
+    <form id="recipeForm">
+        <div class="form-group">
+            <label for="recipeName">Nazwa Przepisu:</label>
+            <input type="text" class="form-control" id="recipeName" required>
+        </div>
+        <div class="form-group">
+            <label for="recipeDescription">Opis Przepisu:</label>
+            <textarea class="form-control" id="recipeDescription" rows="3" required></textarea>
+        </div>
+        <div class="form-group">
+            <label for="recipeIngredients">Składniki:</label>
+            <textarea class="form-control" id="recipeIngredients" rows="3" required></textarea>
+        </div>
+        <div class="form-group">
+            <label for="recipeInstructions">Instrukcje:</label>
+            <textarea class="form-control" id="recipeInstructions" rows="3" required></textarea>
+        </div>
+        <div class="centered-button">
+            <button type="submit" class="btn btn-dark" id="addRecipe">Dodaj Przepis</button>
+            <a href="recipes.html" class="btn btn-dark" id="goBack">Powrót</a>
+        </div>
+    </form>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+<script>
+    document.getElementById('recipeForm').addEventListener('submit', function (event) {
+            event.preventDefault();
+
+            const recipeName = document.getElementById('recipeName').value;
+            const recipeDescription = document.getElementById('recipeDescription').value;
+            const recipeIngredients = document.getElementById('recipeIngredients').value;
+            const recipeInstructions = document.getElementById('recipeInstructions').value;
+
+            const newRecipe = {
+                name: recipeName,
+                description: recipeDescription,
+                ingredients: recipeIngredients,
+                instructions: recipeInstructions
+            };
+
+            fetch('http://localhost:8080/api/recipes', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(newRecipe),
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`Error adding recipe: ${response.status} - ${response.statusText}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                window.location.href = `details-recipe.html?recipeId=${data.id}`;
+            })
+            .catch(error => {
+                console.error(`Error adding recipe: ${error.message}`);
+            });
+        });
+
+</script>
+</body>
+</html>

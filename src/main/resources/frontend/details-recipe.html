@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Szczegóły Przepisu</title>
+
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+        }
+
+        .recipe-details {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .text-black {
+            color: black;
+        }
+
+        .centered-button {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .centered-button a.btn {
+            margin-right: 10px;
+            color: white;
+        }
+
+        .centered-button a#editRecipe {
+            background-color: black;
+            border-color: black;
+        }
+
+        .centered-button a#editRecipe:hover {
+            background-color: #333;
+            border-color: #333;
+        }
+
+        .centered-button a#goBack {
+            background-color: black;
+            border-color: black;
+        }
+
+        .centered-button a#goBack:hover {
+            background-color: #333;
+            border-color: #333;
+        }
+
+    </style>
+</head>
+<body>
+<header class="bg-warning">
+    <div class="container">
+        <h1 class="text-center text-black">Szczegóły Przepisu</h1>
+    </div>
+</header>
+
+<div class="container mt-5 recipe-details" id="recipeDetails">
+</div>
+
+<div class="container mt-3 centered-button">
+    <a href="#" class="btn" id="editRecipe">Edytuj Przepis</a>
+    <a href="recipes.html" class="btn btn-dark" id="goBack">Powrót</a>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+<script>
+    function displayRecipeDetails(recipeId) {
+        const recipeDetails = document.getElementById('recipeDetails');
+
+        fetch(`http://localhost:8080/api/recipes/${recipeId}`)
+            .then(response => response.json())
+            .then(recipe => {
+                recipeDetails.innerHTML = `
+                    <div class="card">
+                        <div class="card-body">
+                            <h2 class="card-title">${recipe.name}</h2>
+                            <p class="card-text"><strong>Opis:</strong> ${recipe.description}</p>
+                            <p class="card-text"><strong>Składniki:</strong> ${recipe.ingredients}</p>
+                            <p class="card-text"><strong>Instrukcje:</strong> ${recipe.instructions}</p>
+                        </div>
+                    </div>
+                `;
+            })
+            .catch(error => {
+                console.error('Błąd pobierania szczegółów przepisu:', error);
+                recipeDetails.innerHTML = '<div class="alert alert-danger" role="alert">Błąd pobierania szczegółów przepisu</div>';
+            });
+    }
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const recipeId = urlParams.get('recipeId');
+
+    if (recipeId) {
+        displayRecipeDetails(recipeId);
+    } else {
+        document.getElementById('recipeDetails').innerHTML = '<div class="alert alert-warning" role="alert">Brak szczegółów przepisu</div>';
+    }
+
+    const editRecipeButton = document.getElementById('editRecipe');
+    editRecipeButton.addEventListener('click', () => {
+        window.location.href = `edit-recipe.html?recipeId=${recipeId}`;
+    });
+
+</script>
+</body>
+</html>
